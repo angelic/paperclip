@@ -761,4 +761,25 @@ class AttachmentTest < Test::Unit::TestCase
       end
     end
   end
+
+  context "An attachment with the format in the styles" do
+    setup do
+      rebuild_model :url => lambda{ |attachment| "path/image.:extension" },
+                    :styles => { :small => {:geometry => "32x32", :format => 'jpg'}}
+      @file = File.new(File.join(File.dirname(__FILE__),
+                                 "fixtures",
+                                  "5k.png"), 'rb')
+      @dummyA = Dummy.new(:avatar => @file)
+      @dummyB = Dummy.new(:avatar => @file)
+    end
+
+    teardown { @file.close }
+
+    should "return correct url" do
+      assert_equal "path/image.png", @dummyA.avatar.url(:original, false)
+      assert_equal "path/image.jpg", @dummyA.avatar.url(:small, false)
+      assert_equal "path/image.png", @dummyB.avatar.url(:original, false)
+      assert_equal "path/image.jpg", @dummyB.avatar.url(:small, false)
+    end
+  end
 end
